@@ -3,7 +3,7 @@
 
 /* === API === */
 
-void ecu_init(ECU *ecu, uint8_t node_id, const char *name, uint16_t msg_id, uint16_t dlc, uint64_t period_us, uint64_t start_us) {
+void ecu_init(ECU *ecu, uint8_t node_id, const char *name, uint16_t msg_id, uint8_t dlc, uint64_t period_us, uint64_t start_us) {
     memset(ecu, 0, sizeof *ecu);
     ecu->node_id = node_id;
     strncpy(ecu->name, name, sizeof(ecu->name) - 1);

@@ -48,8 +48,7 @@ typedef struct {
 
 /* === API === */
 
-void ecu_init(ECU *ecu, uint8_t node_id, const char *name, uint16_t msg_id, uint8_t dlc,
-                uint64_t period_us, uint64_t start_us);
+void ecu_init(ECU *ecu, uint8_t node_id, const char *name, uint16_t msg_id, uint8_t dlc, uint64_t period_us, uint64_t start_us);
 
 void ecu_make_adversary(ECU *ecu, uint16_t target_id);
 
