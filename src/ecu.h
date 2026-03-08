@@ -52,6 +52,14 @@ void ecu_init(ECU *ecu, uint8_t node_id, const char *name, uint16_t msg_id, uint
 
 void ecu_make_adversary(ECU *ecu, uint16_t target_id);
 
+/* Counter update helpers
+ * Each calls ecu_update_state() internally
+*/
+void ecu_on_tx_error(ECU *ecu); /* TEC += 8 */
+void ecu_on_tx_success(ECU *ecu); /* TEC -= 1*/
+void ecu_on_rx_error(ECU *ecu); /* REC += 1*/
+void ecu_on_rx_success(ECU *ecu); /* REC -= 1 */
+
 void ecu_update_state(ECU *ecu);
 
 const char *ecu_state_name(ecu_state_t s);

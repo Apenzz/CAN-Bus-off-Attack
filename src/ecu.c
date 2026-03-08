@@ -24,6 +24,36 @@ void ecu_make_adversary(ECU *ecu, uint16_t target_id) {
     ecu->msg_dlc = 0; /* all dominant bits*/
 }
 
+void ecu_on_tx_error(ECU *ecu) {
+    if (ecu->state == ECU_STATE_BUS_OFF) return;
+    ecu->tec += TEC_TX_ERROR_INC;
+    ecu_update_state(ecu);
+}
+
+void ecu_on_tx_success(ECU *ecu) {
+    if (ecu->state == ECU_STATE_BUS_OFF) return;
+    if (ecu->tec >= TEC_TX_SUCCESS_DEC)
+        ecu->tec -= TEC_TX_SUCCESS_DEC;
+    else
+        ecu->tec = 0;
+    ecu_update_state(ecu);
+}
+
+void ecu_on_rx_error(ECU *ecu) {
+    if (ecu->state == ECU_STATE_BUS_OFF) return;
+    ecu->rec += REC_RX_ERROR_INC;
+    ecu_update_state(ecu);
+}
+
+void ecu_on_rx_success(ECU *ecu) {
+    if (ecu->state == ECU_STATE_BUS_OFF) return;
+    if (ecu->rec >= REC_RX_SUCCESS_DEC)
+        ecu->rec -= REC_RX_SUCCESS_DEC;
+    else
+        ecu->rec = 0;
+    ecu_update_state(ecu);
+}
+
 void ecu_update_state(ECU *ecu) {
     if (ecu->state == ECU_STATE_BUS_OFF) return; /* Terminal state */
 
