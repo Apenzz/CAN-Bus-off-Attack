@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 /* Thresholds */
 #define TEC_ERROR_PASSIVE_THRESHOLD 127u /* TEC > 127 -> Error passive*/
@@ -45,4 +46,16 @@ typedef struct {
     uint16_t target_id; /* ID of the victim's message */
 } ECU;
 
+/* === API === */
+
+void ecu_init(ECU *ecu, uint8_t node_id, const char *name, uint16_t msg_id, uint8_t dlc,
+                uint64_t period_us, uint64_t start_us);
+
+void ecu_make_adversary(ECU *ecu, uint16_t target_id);
+
+void ecu_update_state(ECU *ecu);
+
+const char *ecu_state_name(ecu_state_t s);
+
+void ecu_print(const ECU *ecu, FILE *f);
 #endif 
