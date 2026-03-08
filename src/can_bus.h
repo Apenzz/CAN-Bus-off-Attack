@@ -58,7 +58,7 @@ void bus_add_node(CAN_Bus *bus, ECU *ecu);
  * @param max_records Capacity of the output buffer.
  * 
 */
-int bus_simulate_attack(CAN_Bus *bus, ECU *victim, ECU *adversary, uint64_t simulation_duration_us, sim_record_t *records, int max_records);
+int bus_simulate_attack(ECU *victim, ECU *adversary, uint64_t simulation_duration_us, sim_record_t *records, int max_records);
 
 void bus_print_summary(const CAN_Bus *bus, FILE *f);
 #endif
