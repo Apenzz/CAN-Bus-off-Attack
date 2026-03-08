@@ -44,10 +44,10 @@ ax.plot(time_ms, adv_tec, color="crimson", linestyle="--", linewidth=1.8, label=
 
 # Threshold lines
 ax.axhline(y=127, color="grey", linestyle=":", linewidth=1.0, alpha=0.7, zorder=1)
-ax.text(time_ms[-1] * 0.015, 130, "Error-Passive (TEC > 127)", fontsize=8, color="grey")
+ax.text(time_ms[-1] * 0.035, 130, "Error-Passive (TEC > 127)", fontsize=8, color="grey")
 
 ax.axhline(y=255, color="grey", linestyle=":", linewidth=1.0, alpha=0.7, zorder=1)
-ax.text(time_ms[-1] * 0.015, 258, "Bus-Off (TEC > 255)", fontsize=8, color="grey")
+ax.text(time_ms[-1] * 0.75, 258, "Bus-Off (TEC > 255)", fontsize=8, color="grey")
 
 # Annotate phase boundary
 if phase1_end_ms is not None:
@@ -56,7 +56,7 @@ if phase1_end_ms is not None:
 
 # Annotate bus-off event
 if busoff_ms is not None:
-    ax.axvline(x=busoff_ms, color="red", linestyle=":", linewidth=1.2, alpha=0.6, zorder=2)
+    ax.axvline(x=170.2, color="red", linestyle=":", linewidth=1.2, alpha=0.6, zorder=2)
     ax.text(busoff_ms - time_ms[-1] * 0.12, 20, f"Bus off\n({busoff_ms:.1f} ms)", fontsize=8, color="red")
 
 # Labels
