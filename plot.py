@@ -39,8 +39,8 @@ for t, s in zip(time_ms, victim_state):
 # Plot
 fig, ax = plt.subplots(figsize=(8, 5))
 
-ax.plot(time_ms, victim_tec, color="steelblue", linestyle="-", linewidth=1.8, label="Victim's TEC", zorder=3)
-ax.plot(time_ms, adv_tec, color="crimson", linestyle="--", linewidth=1.8, label="Adversary's TEC", zorder=3)
+ax.plot(time_ms, victim_tec, color="blue", linestyle="-", linewidth=1.8, label="Victim's TEC", zorder=3)
+ax.plot(time_ms, adv_tec, color="red", linestyle="--", linewidth=1.8, label="Adversary's TEC", zorder=3)
 
 # Threshold lines
 ax.axhline(y=127, color="grey", linestyle=":", linewidth=1.0, alpha=0.7, zorder=1)
