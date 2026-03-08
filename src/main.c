@@ -56,7 +56,7 @@ int main() {
     printf("Running simulation (duration limit: %.0f ms)...\n\n",
             SIM_DURATION_US / 1000.0);
 
-    int nrec = bus_simulate_attack(&bus, &victim, &adversary, SIM_DURATION_US, records, MAX_RECORDS);
+    int nrec = bus_simulate_attack(&victim, &adversary, SIM_DURATION_US, records, MAX_RECORDS);
 
     printf("Final ECU States\n");
     ecu_print(&victim, stdout);
