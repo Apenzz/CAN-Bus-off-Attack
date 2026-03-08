@@ -7,7 +7,7 @@
 
 /* Thresholds */
 #define TEC_ERROR_PASSIVE_THRESHOLD 127u /* TEC > 127 -> Error passive*/
-#define TEC_BUS_OFF_THRESHOLD 225u       /* TEC > 255 -> Bus-off */
+#define TEC_BUS_OFF_THRESHOLD 255u       /* TEC > 255 -> Bus-off */
 #define REC_ERROR_PASSIVE_THRESHOLD 127u /* REC > 127 -> Error passive */
 
 /* Counter deltas per CAN spec */
