@@ -7,6 +7,26 @@
 #define MSG_PERIOD_US 10000ULL /* 10 ms message period */
 #define MAX_RECORDS 100000
 
+static void write_csv(const char *path, const sim_record_t *records, int n) {
+    FILE *f = fopen(path, "w");
+    if (!f) {
+        perror(path);
+        return;
+    }
+
+    fprintf(f, "time_ms,victim_tec,adversary_tec,victim_state,adversary_state\n");
+    for (int i = 0; i < n; i++) {
+        fprintf(f, "%.4f,%u,%u,%d,%d\n",
+                records[i].time_us / 1000.0,
+                records[i].victim_tec,
+                records[i].adv_tec,
+                (int)records[i].victim_state,
+                (int)records[i].adv_state);
+    }
+    fclose(f);
+    printf("Results written to: %s (%d records)\n", path, n);
+}
+
 int main() {
     CAN_Bus bus;
     ECU node_a, victim, adversary;
@@ -66,4 +86,6 @@ int main() {
         }
     }
     printf("Total data points recorded: %d\n\n", nrec);
+
+    write_csv("results.csv", records, nrec);
 }
