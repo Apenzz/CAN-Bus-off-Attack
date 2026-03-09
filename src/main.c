@@ -47,9 +47,9 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
 
     bus_init(&bus, 500000);
     bus_set_jitter(&bus, jitter);
-    
+
     /* Bg traffic: node A transmits 0x07 then 0x09 each period */
-    /* Te adversary uses 0x09 as the preceded ID trigger */
+    /* The adversary uses 0x09 as the preceded ID trigger */
     bus_add_bg_msg(&bus, 0x07, MSG_PERIOD_US, 0);
     bus_add_bg_msg(&bus, 0x09, MSG_PERIOD_US, BG_09_OFFSET_US);
 
@@ -63,12 +63,11 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
     ecu_init(&victim, 2, "Victim", 0x11, 1, MSG_PERIOD_US, VICTIM_OFFSET_US);
     bus_add_node(&bus, &victim);
 
-    /* node Adversary: attacks id=0x11 with DLC=0 */
+    /* Node Adversary: attacks id=0x11 with DLC=0 */
     ecu_init(&adversary, 3, "Adversary", 0x11, 0, MSG_PERIOD_US, VICTIM_OFFSET_US);
     ecu_make_adversary(&adversary, 0x11);
-    if (use_prec) {
+    if (use_prec)
         ecu_set_preceded_id(&adversary, 0x09);
-    }
 
     sim_record_t *records = malloc(MAX_RECORDS * sizeof(*records));
     if (!records) {
@@ -77,24 +76,21 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
     }
 
     int nrec = bus_simulate_attack(&bus, &victim, &adversary, SIM_DURATION_US, records, MAX_RECORDS);
-    /* Key events */
+
+    double ep_ms     = -1.0;
     double busoff_ms = -1.0;
-    double ep_ms = -1.0;
     for (int i = 0; i < nrec; i++) {
-        if (ep_ms < 0 && records[i].victim_state == ECU_STATE_ERROR_PASSIVE) {
+        if (ep_ms < 0 && records[i].victim_state == ECU_STATE_ERROR_PASSIVE)
             ep_ms = records[i].time_us / 1000.0;
-        }
-        if (busoff_ms < 0 && records[i].victim_state == ECU_STATE_BUS_OFF) {
+        if (busoff_ms < 0 && records[i].victim_state == ECU_STATE_BUS_OFF)
             busoff_ms = records[i].time_us / 1000.0;
-        }
     }
 
     printf("Error Passive at: %.3f ms\n", ep_ms >= 0 ? ep_ms : -1.0);
-    if (busoff_ms >= 0) {
+    if (busoff_ms >= 0)
         printf("Bus-Off at: %.3f ms\n", busoff_ms);
-    } else {
+    else
         printf("Bus-Off NOT reached within %.0f ms\n", SIM_DURATION_US / 1000.0);
-    }
     printf("Final victim TEC: %u (state: %s)\n", victim.tec, ecu_state_name(victim.state));
     printf("Final adversary TEC: %u (state: %s)\n", adversary.tec, ecu_state_name(adversary.state));
 
@@ -104,7 +100,6 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
 
 int main(int argc, char *argv[]) {
 
-    /* seed */
     srand(time(0));
 
     /* No arguments: run all three preset scenarios */
@@ -115,7 +110,6 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    /* Single configurable run */
     int64_t     jitter   = 0;
     bool        use_prec = false;
     const char *out      = "results.csv";
@@ -125,7 +119,7 @@ int main(int argc, char *argv[]) {
         switch (opt) {
             case 'j': jitter   = (int64_t)atoll(optarg); break;
             case 'p': use_prec = true;                   break;
-            case 'o': out      = optarg;                  break;
+            case 'o': out      = optarg;                 break;
             case 'h':
             default:
                 fprintf(stderr,
