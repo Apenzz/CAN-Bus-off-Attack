@@ -30,13 +30,20 @@ static void write_csv(const char *path, const sim_record_t *records, int n) {
     printf("Results written to: %s (%d records)\n", path, n);
 }
 
-static void run_simulation(const char *label, const char *csv_path, bool use_prec) {
+static void run_simulation(const char *label, const char *csv_path, bool use_prec, int64_t jitter) {
     printf("\n=== %s ===\n", label);
+
+    if (jitter > 0) {
+        printf(" Jitter: %lld us | Tx sync: %s\n", (long long)jitter, use_prec ? "Preceded ID" : "Period-based");
+    } else {
+        printf(" Jitter: none | Tx sync: %s\n", use_prec ? "Preceded ID" : "Period-based");
+    }
 
     CAN_Bus bus;
     ECU node_a_07, node_a_09, victim, adversary;
 
     bus_init(&bus, 500000);
+    bus_set_jitter(&bus, jitter);
     
     /* Bg traffic: node A transmits 0x07 then 0x09 each period */
     /* Te adversary uses 0x09 as the preceded ID trigger */
@@ -96,9 +103,12 @@ int main() {
 
     /* Run simulation */
 
-    /* Run 1: no preceded ID, period based sync attack */
-    run_simulation("Period based attack", "results.csv", false);
+    /* Run 1: no preceded ID, period based sync attack - no jitter */
+    run_simulation("Period based attack - no jitter", "results.csv", false, 0);
 
-    /* Run 2: preceded ID based attack */
-    run_simulation("Preceded ID based attack", "preceded_id_attack.csv", true);
+    /* Run 2: preceded ID based attack with jitter */
+    run_simulation("Preceded ID based attack with jitter", "preceded_id_attack_jitter.csv", true, 30);
+
+    /* Run 3: period-based attack with jitter */
+    run_simulation("Period-based attack with jitter", "period_attack_jitter.csv", false, 30);
 }

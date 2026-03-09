@@ -1,5 +1,6 @@
 #include "can_bus.h"
 #include <string.h>
+#include <stdlib.h>
 
 static int push_record(sim_record_t *records, int *count, int max, uint64_t t, const ECU *v, const ECU *a) {
     if (*count >= max) return 0;
@@ -30,6 +31,10 @@ void bus_add_bg_msg(CAN_Bus *bus, uint16_t id, uint64_t period_us, uint64_t star
         m->period_us = period_us;
         m->start_us = start_us;
     }
+}
+
+void bus_set_jitter(CAN_Bus *bus, int64_t max_us) {
+    bus->jitter_max_us = max_us;
 }
 
 /**
@@ -115,42 +120,54 @@ int bus_simulate_attack(CAN_Bus *bus, ECU *victim, ECU *adversary, uint64_t simu
      */
 
      /* Period based estimated attack */
-    uint64_t victim_nominal = t + victim->period_us;
+    uint64_t victim_nominal = victim->next_tx_us + victim->period_us;
 
     while (victim->state != ECU_STATE_BUS_OFF && victim_nominal < simulation_duration_us) {
+        /* jitter */
+        int64_t j = 0;
+        if (bus->jitter_max_us > 0) {
+            j = (int64_t)(rand() % (int64_t)(2 * bus->jitter_max_us + 1)) - bus->jitter_max_us;
+        }
         /* Preceded ID sync */
-        uint64_t attack_us;
+        uint64_t victim_actual, attack_us;
         if (adversary->use_preceded_id) {
             uint64_t prec_nominal = preceded_msg_done(bus, adversary->preceded_id, victim_nominal);
             
             if (prec_nominal > 0) {
-                attack_us = prec_nominal + IFS_US; 
+                uint64_t prec_actual = (uint64_t)((int64_t)prec_nominal + j);
+                victim_actual = prec_actual + IFS_US;
+                attack_us = prec_actual + IFS_US; 
             } else {
                 /* preceded_id not in registry - fallback */
-                attack_us = victim_nominal;
+                victim_actual = (uint64_t)((int64_t)victim_nominal + j);
+                attack_us = victim_actual;
             }
         } else {
             /* Period based adversary estimate attack */
+            victim_actual = (int64_t)((int64_t)victim_nominal + j);
             attack_us = victim_nominal;
         }
 
+        bool synchronized = llabs((int64_t)attack_us - (int64_t)victim_actual) <= (int64_t)BIT_TIME_US;
 
+        t = victim_actual;
 
-        t = attack_us;
-        /* step 1 */
-        ecu_on_tx_error(victim);
-        push_record(records, &count, max_records, t, victim, adversary);
+        if (synchronized) {
+            ecu_on_tx_error(victim);
+            push_record(records, &count, max_records, t, victim, adversary);
 
-        if (victim->state == ECU_STATE_BUS_OFF) break;
+            if (victim->state == ECU_STATE_BUS_OFF) break;
 
-        t += FRAME_DURATION_US;
+            t += FRAME_DURATION_US;
 
-        /* Step 2+3 */
-        ecu_on_tx_success(adversary);
-        /* Step 4 */
-        ecu_on_tx_success(victim);
-        push_record(records, &count, max_records, t, victim, adversary);
-
+            ecu_on_tx_success(adversary);
+            
+            ecu_on_tx_success(victim);
+            push_record(records, &count, max_records, t, victim, adversary);
+        } else {
+            ecu_on_tx_success(victim);
+            push_record(records, &count, max_records, t, victim, adversary);
+        }
         victim_nominal += victim->period_us;
     }
 

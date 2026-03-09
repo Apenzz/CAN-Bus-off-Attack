@@ -63,6 +63,14 @@ typedef struct {
     /* Bg traffic registry */
     bg_msg_t bg_msgs[MAX_BG_MSGS];
     int num_bg_msgs;
+
+    /* jitter
+     *
+     * The victim actual Tx deviates from the nominal value by a uniform random time in
+     * [-jitter_max_us, jitter_max_us].
+     * If set to 0 reproduce a deterministic attack.
+    */
+    int64_t jitter_max_us;
 } CAN_Bus;
 
 
@@ -77,6 +85,13 @@ void bus_add_node(CAN_Bus *bus, ECU *ecu);
  * @param start_us Absolute sim time of the message's first Tx
  */
 void bus_add_bg_msg(CAN_Bus *bus, uint16_t id, uint64_t period_us, uint64_t start_us);
+
+/**
+ * Set uinform jitter on the victim's transmission timing.
+ * Each period the victim's actual Tx time = nominal +/- uniform(0, max_us).
+ * max_us set to 0 for deterministic mode.
+ */
+void bus_set_jitter(CAN_Bus *bus, int64_t max_us);
 
 /* Simulate the full iterative bus-off attack. 
  *
