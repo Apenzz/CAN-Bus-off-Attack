@@ -44,6 +44,16 @@ typedef struct {
     /* adversary fields */
     bool is_adversary;
     uint16_t target_id; /* ID of the victim's message */
+
+    /* Tx synchronization 
+     *
+     * With jitter the attacker needs to listen the bus for a "preceding ID", a message whose transmission
+     * always completes just before the target message starts.
+     * When the preceded ID finishes the bus becomes idle for 3 IFS. Both the victim and the attacker wait for
+     * the same amount of time and start transmitting simultaneously achieving sub-bit time synchronization.
+    */
+    bool use_preceded_id; /* Activate preceded ID Tx sync */
+    uint16_t preceded_id;
 } ECU;
 
 /* === API === */
@@ -51,6 +61,13 @@ typedef struct {
 void ecu_init(ECU *ecu, uint8_t node_id, const char *name, uint16_t msg_id, uint8_t dlc, uint64_t period_us, uint64_t start_us);
 
 void ecu_make_adversary(ECU *ecu, uint16_t target_id);
+
+/** 
+ * Enable Tx sync via preceded ID
+ * The adversary will trigger its attack whenver it observes the message with
+ * @id completing on the bus, synchronizing via the IFS gap.
+ */
+void ecu_set_preceded_id(ECU *ecu, u_int16_t id);
 
 /* Counter update helpers
  * Each calls ecu_update_state() internally

@@ -24,6 +24,11 @@ void ecu_make_adversary(ECU *ecu, uint16_t target_id) {
     ecu->msg_dlc = 0; /* all dominant bits*/
 }
 
+void ecu_set_preceded_id(ECU *ecu, uint16_t id) {
+    ecu->use_preceded_id = true;
+    ecu->preceded_id = id;
+}
+
 void ecu_on_tx_error(ECU *ecu) {
     if (ecu->state == ECU_STATE_BUS_OFF) return;
     ecu->tec += TEC_TX_ERROR_INC;
