@@ -1,6 +1,8 @@
 #include "ecu.h"
 #include "can_bus.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
 /* Simulation constants */
 #define SIM_DURATION_US 200000ULL /* 200 ms hard cap */
@@ -99,16 +101,45 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
     free(records);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
-    /* Run simulation */
+    /* No arguments: run all three preset scenarios */
+    if (argc == 1) {
+        run_simulation("Period based attack - no jitter",      "results.csv",                   false, 0);
+        run_simulation("Preceded ID based attack with jitter", "preceded_id_attack_jitter.csv", true,  30);
+        run_simulation("Period-based attack with jitter",      "period_attack_jitter.csv",      false, 30);
+        return 0;
+    }
 
-    /* Run 1: no preceded ID, period based sync attack - no jitter */
-    run_simulation("Period based attack - no jitter", "results.csv", false, 0);
+    /* Single configurable run */
+    int64_t     jitter   = 0;
+    bool        use_prec = false;
+    const char *out      = "results.csv";
 
-    /* Run 2: preceded ID based attack with jitter */
-    run_simulation("Preceded ID based attack with jitter", "preceded_id_attack_jitter.csv", true, 30);
+    int opt;
+    while ((opt = getopt(argc, argv, "j:po:h")) != -1) {
+        switch (opt) {
+            case 'j': jitter   = (int64_t)atoll(optarg); break;
+            case 'p': use_prec = true;                   break;
+            case 'o': out      = optarg;                  break;
+            case 'h':
+            default:
+                fprintf(stderr,
+                        "Usage: %s [-j <jitter_us>] [-p] [-o <output.csv>]\n"
+                        "  -j <us>   Jitter range in microseconds (default: 0)\n"
+                        "  -p        Use preceded ID Tx sync (default: period-based)\n"
+                        "  -o <file> Output CSV file (default: results.csv)\n"
+                        "Without arguments runs all three preset scenarios.\n",
+                        argv[0]);
+                return opt == 'h' ? 0 : 1;
+        }
+    }
 
-    /* Run 3: period-based attack with jitter */
-    run_simulation("Period-based attack with jitter", "period_attack_jitter.csv", false, 30);
+    char label[64];
+    snprintf(label, sizeof(label), "%s%s",
+             use_prec ? "Preceded ID" : "Period-based",
+             jitter > 0 ? " with jitter" : " - no jitter");
+
+    run_simulation(label, out, use_prec, jitter);
+    return 0;
 }
