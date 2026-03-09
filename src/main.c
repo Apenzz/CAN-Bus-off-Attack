@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 
 /* Simulation constants */
 #define SIM_DURATION_US 200000ULL /* 200 ms hard cap */
@@ -102,6 +103,9 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
 }
 
 int main(int argc, char *argv[]) {
+
+    /* seed */
+    srand(time(0));
 
     /* No arguments: run all three preset scenarios */
     if (argc == 1) {
