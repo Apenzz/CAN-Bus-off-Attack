@@ -23,7 +23,40 @@ void bus_add_node(CAN_Bus *bus, ECU *ecu) {
     }
 }
 
-int bus_simulate_attack(ECU *victim, ECU *adversary, uint64_t simulation_duration_us, sim_record_t *records, int max_records) {
+void bus_add_bg_msg(CAN_Bus *bus, uint16_t id, uint64_t period_us, uint64_t start_us) {
+    if (bus->num_bg_msgs < MAX_BG_MSGS) {
+        bg_msg_t *m = &bus->bg_msgs[bus->num_bg_msgs++];
+        m->id = id;
+        m->period_us = period_us;
+        m->start_us = start_us;
+    }
+}
+
+/**
+ * Look up the registered background msg whose ID matches preceded_id
+ * and return the nominal absolute time at which its most recent transmission completed relative to
+ * the victim's nominal Tx time ref_us.
+ */
+static uint64_t preceded_msg_done(const CAN_Bus *bus, uint16_t preceded_id, uint64_t ref_us) {
+    for (int i = 0; i < bus->num_bg_msgs; i++) {
+        const bg_msg_t *m = &bus->bg_msgs[i];
+        if (m->id != preceded_id) continue;
+
+        uint64_t elapsed = (ref_us >= m->start_us) ? ref_us - m->start_us : 0;
+        uint64_t n = elapsed / m->period_us;
+        uint64_t done = m->start_us + n * m->period_us + FRAME_DURATION_US;
+
+        /* step back if this completion is too late to preced ref_us */
+        while (n > 0 && done + IFS_US > ref_us + BIT_TIME_US) {
+            n--;
+            done = m->start_us + n * m->period_us + FRAME_DURATION_US;
+        }
+        return done;
+    }
+    return 0; /* predeced_id not registered */
+}
+
+int bus_simulate_attack(CAN_Bus *bus, ECU *victim, ECU *adversary, uint64_t simulation_duration_us, sim_record_t *records, int max_records) {
     int count = 0;
     uint64_t t = 0;
 
@@ -70,17 +103,40 @@ int bus_simulate_attack(ECU *victim, ECU *adversary, uint64_t simulation_duratio
     }
 
     /* Phase 2
-     *
+     * 
+     * The adversary watches for the registered preceded ID msg to complete, it then 
+     * queues its attack msg. Both nodes trasmits after the IFS gap.
+     * 
      * Per successful attack cycle:
      * 1. Victim bit error -> victim TEC += 8.
      * 2. Victim sends Passive err flag -> ignored by adversary.
      * 3. Adversary transmission completes successfully -> adversary TEC -= 1.
      * 4. Victim retrasmits successfully -> victim TEC -= 1.
      */
-    uint64_t next_attack_us = victim->next_tx_us + victim->period_us;
 
-    while (victim->state != ECU_STATE_BUS_OFF && next_attack_us < simulation_duration_us) {
-        t = next_attack_us;
+     /* Period based estimated attack */
+    uint64_t victim_nominal = t + victim->period_us;
+
+    while (victim->state != ECU_STATE_BUS_OFF && victim_nominal < simulation_duration_us) {
+        /* Preceded ID sync */
+        uint64_t attack_us;
+        if (adversary->use_preceded_id) {
+            uint64_t prec_nominal = preceded_msg_done(bus, adversary->preceded_id, victim_nominal);
+            
+            if (prec_nominal > 0) {
+                attack_us = prec_nominal + IFS_US; 
+            } else {
+                /* preceded_id not in registry - fallback */
+                attack_us = victim_nominal;
+            }
+        } else {
+            /* Period based adversary estimate attack */
+            attack_us = victim_nominal;
+        }
+
+
+
+        t = attack_us;
         /* step 1 */
         ecu_on_tx_error(victim);
         push_record(records, &count, max_records, t, victim, adversary);
@@ -95,7 +151,7 @@ int bus_simulate_attack(ECU *victim, ECU *adversary, uint64_t simulation_duratio
         ecu_on_tx_success(victim);
         push_record(records, &count, max_records, t, victim, adversary);
 
-        next_attack_us += victim->period_us;
+        victim_nominal += victim->period_us;
     }
 
     /* Record final state */
