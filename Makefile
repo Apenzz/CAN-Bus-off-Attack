@@ -6,7 +6,7 @@ SRC     = src/main.c src/ecu.c src/can_bus.c
 INCLUDE = include/ecu.h include/can_bus.h
 TARGET  = bus_off_sim.out
 
-.PHONY: all clean
+.PHONY: all clean distclean
 
 all: $(TARGET)
 
@@ -15,3 +15,6 @@ $(TARGET): $(SRC) $(INCLUDE)
 
 clean:
 	rm -f $(TARGET)
+
+distclean: clean
+	rm *.png *.csv
