@@ -1,5 +1,5 @@
 # CAN Bus-Off Attack
-Simulation of a CAN Bus-Off Attack where a malicious ECU disconnects a healty ECU from the CAN Bus via error counter manipulation
+Simulation of a CAN Bus-Off Attack where a malicious ECU disconnects a healthy ECU from the CAN Bus via error counter manipulation.
 
 # Description
 This simulation implements the most important feature of the CAN 2.0 specification such as correct handling of error flags TEC & REC.
