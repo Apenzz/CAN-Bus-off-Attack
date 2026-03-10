@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
     /* No arguments: run all three preset scenarios */
     if (argc == 1) {
-        run_simulation("Period based attack - no jitter",      "results.csv",                   false, 0);
+        run_simulation("Period based attack - no jitter",      "naive.csv",                   false, 0);
         run_simulation("Preceded ID based attack with jitter", "preceded_id_attack_jitter.csv", true,  30);
         run_simulation("Period-based attack with jitter",      "period_attack_jitter.csv",      false, 30);
         return 0;
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     int64_t     jitter   = 0;
     bool        use_prec = false;
-    const char *out      = "results.csv";
+    const char *out      = "naive.csv";
 
     int opt;
     while ((opt = getopt(argc, argv, "j:po:h")) != -1) {
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
                         "Usage: %s [-j <jitter_us>] [-p] [-o <output.csv>]\n"
                         "  -j <us>   Jitter range in microseconds (default: 0)\n"
                         "  -p        Use preceded ID Tx sync (default: period-based)\n"
-                        "  -o <file> Output CSV file (default: results.csv)\n"
+                        "  -o <file> Output CSV file (default: naive.csv)\n"
                         "Without arguments runs all three preset scenarios.\n",
                         argv[0]);
                 return opt == 'h' ? 0 : 1;
