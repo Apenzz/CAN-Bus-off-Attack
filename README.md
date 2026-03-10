@@ -18,7 +18,7 @@ This attack is strong even with high jitter.
 
 # Build
 Just run make from the main directory.
-> [!NOTE] It won't compile on Windows because of getopt being a POSIX fuction so either use WSL or switch to Linux ¯\_(ツ)_/¯
+> [!NOTE] It won't compile on Windows because of getopt being a POSIX fuction so either use WSL or switch to Linux ¯\\_(ツ)_/¯
 
 # Output 
 To see the plots first run the executable to generate the csv files then run
