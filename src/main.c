@@ -30,7 +30,7 @@ static void write_csv(const char *path, const sim_record_t *records, int n) {
                 (int)records[i].adv_state);
     }
     fclose(f);
-    printf("Results written to: %s (%d records)\n", path, n);
+    printf(" Results written to: %s (%d records)\n", path, n);
 }
 
 static void run_simulation(const char *label, const char *csv_path, bool use_prec, int64_t jitter) {
@@ -86,13 +86,13 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
             busoff_ms = records[i].time_us / 1000.0;
     }
 
-    printf("Error Passive at: %.3f ms\n", ep_ms >= 0 ? ep_ms : -1.0);
+    printf(" Error Passive at: %.3f ms\n", ep_ms >= 0 ? ep_ms : -1.0);
     if (busoff_ms >= 0)
-        printf("Bus-Off at: %.3f ms\n", busoff_ms);
+        printf(" Bus-Off at: %.3f ms\n", busoff_ms);
     else
-        printf("Bus-Off NOT reached within %.0f ms\n", SIM_DURATION_US / 1000.0);
-    printf("Final victim TEC: %u (state: %s)\n", victim.tec, ecu_state_name(victim.state));
-    printf("Final adversary TEC: %u (state: %s)\n", adversary.tec, ecu_state_name(adversary.state));
+        printf(" Bus-Off NOT reached within %.0f ms\n", SIM_DURATION_US / 1000.0);
+    printf(" Final victim TEC: %u (state: %s)\n", victim.tec, ecu_state_name(victim.state));
+    printf(" Final adversary TEC: %u (state: %s)\n", adversary.tec, ecu_state_name(adversary.state));
 
     if (csv_path) write_csv(csv_path, records, nrec);
     free(records);

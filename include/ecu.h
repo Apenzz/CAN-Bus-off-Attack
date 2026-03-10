@@ -67,7 +67,7 @@ void ecu_make_adversary(ECU *ecu, uint16_t target_id);
  * The adversary will trigger its attack whenver it observes the message with
  * @id completing on the bus, synchronizing via the IFS gap.
  */
-void ecu_set_preceded_id(ECU *ecu, u_int16_t id);
+void ecu_set_preceded_id(ECU *ecu, uint16_t id);
 
 /* Counter update helpers
  * Each calls ecu_update_state() internally
