@@ -43,7 +43,7 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
     }
 
     CAN_Bus bus;
-    ECU node_a_07, node_a_09, victim, adversary;
+    ECU victim, adversary;
 
     bus_init(&bus, 500000);
     bus_set_jitter(&bus, jitter);
@@ -52,12 +52,6 @@ static void run_simulation(const char *label, const char *csv_path, bool use_pre
     /* The adversary uses 0x09 as the preceded ID trigger */
     bus_add_bg_msg(&bus, 0x07, MSG_PERIOD_US, 0);
     bus_add_bg_msg(&bus, 0x09, MSG_PERIOD_US, BG_09_OFFSET_US);
-
-    /* Node A registered for summary display */
-    ecu_init(&node_a_07, 0, "NodeA-0x07", 0x07, 1, MSG_PERIOD_US, 0);
-    ecu_init(&node_a_09, 1, "NodeA-0x09", 0x09, 1, MSG_PERIOD_US, BG_09_OFFSET_US);
-    bus_add_node(&bus, &node_a_07);
-    bus_add_node(&bus, &node_a_09);
 
     /* Node Victim sends 0x11 every 10 ms, starting after 0x09 */
     ecu_init(&victim, 2, "Victim", 0x11, 1, MSG_PERIOD_US, VICTIM_OFFSET_US);
