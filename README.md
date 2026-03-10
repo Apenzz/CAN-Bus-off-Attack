@@ -17,7 +17,7 @@ This attack is strong even with high jitter.
 - matplotlib
 
 # Build
-Just run make from the main directory.
+Just run `make` from the project directory.
 > [!NOTE] 
 > It won't compile on Windows because of getopt being a POSIX fuction so either use WSL or switch to Linux ¯\\_(ツ)_/¯
 
