@@ -2,7 +2,7 @@
 Simulation of a CAN Bus-Off Attack where a malicious ECU disconnects a healthy ECU from the CAN Bus via error counter manipulation.
 
 # Description
-This simulation implements the most important feature of the CAN 2.0 specification such as correct handling of error flags TEC & REC.
+This simulation implements the most important features of the CAN 2.0 specification such as correct handling of error flags TEC & REC.
 It also simulates the jitter caused by signal noise of physical hardware.
 There are two ways in which the adversary can synchronize its attacks.
 - Period-based: The adversary listen for victim transmissions, then sends its own message according to the victim's message period.
@@ -17,7 +17,7 @@ This attack is strong even with high jitter.
 - matplotlib
 
 # Build
-Just run make from the main directory
+Just run make from the main directory.
 
 # Output 
 To see the plots first run the executable to generate the csv files then run
