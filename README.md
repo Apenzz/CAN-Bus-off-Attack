@@ -35,4 +35,4 @@ python3 plot.py
 | -o | file | Output CSV file (default: naive.csv)|
 | -h | - | Show help |
 
-Without arguments runs all three preset scenarios.
+Without arguments runs all three preset scenarios described in the report.
