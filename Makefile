@@ -17,4 +17,4 @@ clean:
 	rm -f $(TARGET)
 
 distclean: clean
-	rm *.png *.csv
+	rm -rf *.png *.csv output/

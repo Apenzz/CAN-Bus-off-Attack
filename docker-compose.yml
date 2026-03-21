@@ -1,0 +1,16 @@
+services:
+  sim:
+    build: .
+    volumes:
+      - ./output:/output
+    working_dir: /output
+    entrypoint: ["/app/bus_off_sim.out"]
+
+  plot:
+    build: .
+    volumes:
+      - ./output:/output
+    working_dir: /output
+    entrypoint: ["python3", "/app/plot.py"]
+    depends_on:
+      - sim
