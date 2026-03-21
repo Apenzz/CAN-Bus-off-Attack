@@ -10,21 +10,30 @@ This attack is subject to jitter.
 - Preceded ID based: the adversary listens for a "preceded ID" (a message which always comes at a predefined time before the victim's message). It synchronizes its attack by waiting an Intra-Frame Space gap from the end of the preceded message. This way the attack is perfectly synchronized with the victim's message.
 This attack is strong even with high jitter.
 
-# Dependencies
-- gcc
-- make
-- python3
-- matplotlib
+# Running the simulation
 
-# Build
-Just run `make` from the project directory.
-> [!NOTE] 
-> It won't compile on Windows because of getopt being a POSIX fuction so either use WSL or switch to Linux ¯\\_(ツ)_/¯
+There are two ways to build and run the project.
 
-# Output 
-To see the plots first run the executable to generate the csv files then run
-```
+## Option 1: Native (make)
+
+**Dependencies:** gcc, make, python3, matplotlib
+
+```sh
+make
+./bus_off_sim.out
 python3 plot.py
+```
+
+> [!NOTE]
+> Won't compile on Windows because `getopt` is a POSIX function — use WSL or Linux ¯\\_(ツ)_/¯
+
+## Option 2: Docker
+
+No dependencies required beyond Docker itself. Output files (CSVs and PNGs) are written to the `./output` folder on your host.
+
+```sh
+docker compose run --rm sim    # run the simulation
+docker compose run --rm plot   # generate the plots
 ```
 
 # Command line arguments
